@@ -1,13 +1,28 @@
+using GiftShop.API;
+using GiftShop.Application;
+using GiftShop.Application.Services;
+using GiftShop.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton(builder.Configuration);
+builder.Services.AddWebApi();
+builder.Services.AddPersistence(builder.Configuration.GetConnectionString("AppConnection"));
+builder.Services.AddSecurity(builder.Configuration);
+builder.Services.AddCoreApplication();
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    var services = serviceScope.ServiceProvider;
+
+    var identityInitializer = services.GetRequiredService<IdentityInitializerService>();
+    var configuration = services.GetRequiredService<IConfiguration>();
+    await identityInitializer!.Run(configuration["AdminEmail"]);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -17,6 +32,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

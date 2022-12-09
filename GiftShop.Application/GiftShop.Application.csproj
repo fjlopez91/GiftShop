@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GiftShop.Domain\GiftShop.Domain.csproj" />
     <ProjectReference Include="..\GiftShop.Persistence\GiftShop.Persistence.csproj" />
   </ItemGroup>
