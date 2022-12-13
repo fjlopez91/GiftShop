@@ -1,4 +1,5 @@
 using GiftShop.API;
+using GiftShop.API.Middlewares;
 using GiftShop.Application;
 using GiftShop.Application.Services;
 using GiftShop.Persistence;
@@ -30,6 +31,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -18,28 +18,28 @@ namespace GiftShop.Application.Services
 
         public async Task<List<UserDto>> GetAllUsers()
         {
-            var entities = _unitOfWork.GetRepository<User>().GetAllAsQueryable().ToList();
+            var entities = await _unitOfWork.UserRepository.GetAll();
 
-            return await Task.FromResult(_mapper.Map<List<UserDto>>(entities));
+            return _mapper.Map<List<UserDto>>(entities);
         }
 
         public async Task<UserDto> GetById(Guid id)
         {
-            var user = GetUser(id);
-            return await Task.FromResult(_mapper.Map<UserDto>(user));
+            var user = await GetUser(id);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserDto> GetByEmail(string email)
         {
-            var user = _unitOfWork.GetRepository<User>().Find(x => x.Email == email).FirstOrDefault();
-            if (user == null) throw new KeyNotFoundException("User not found");
-            return await Task.FromResult(_mapper.Map<UserDto>(user));
-        }
+            var user = await _unitOfWork.UserRepository.Find(x => x.Email == email);
+            if (user == null) throw new KeyNotFoundException(AppResource.UserNotFound);
+            return _mapper.Map<UserDto>(user);
+        }        
 
-        private User GetUser(Guid id)
+        private Task<User> GetUser(Guid id)
         {
-            var user = _unitOfWork.GetRepository<User>().FindById(id);
-            if (user == null) throw new KeyNotFoundException("User not found");
+            var user = _unitOfWork.UserRepository.Get(id);
+            if (user == null) throw new KeyNotFoundException(AppResource.UserNotFound);
             return user;
         }
     }

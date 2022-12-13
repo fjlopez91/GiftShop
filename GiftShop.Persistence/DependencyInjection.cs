@@ -23,8 +23,8 @@ namespace GiftShop.Persistence
 
         public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration config)
         {
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));            
 
             var jwtSection = config.GetSection("Jwt");
 

@@ -41,9 +41,38 @@ namespace GiftShop.Application.Utils
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string ValidateToken(string token)
+        public string? ValidateToken(string token)
         {
-            throw new NotImplementedException();
+            if (token == null)
+                return null;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            var tokenValidation = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = securityKey,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidAudience = _configuration["Jwt:Audience"],
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                ClockSkew = TimeSpan.Zero
+            };
+
+            try
+            {
+                tokenHandler.ValidateToken(token, tokenValidation, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var email = jwtToken.Claims.First(x => x.Type == ClaimTypes.Email).Value;
+
+                return email;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

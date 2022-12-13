@@ -1,73 +1,65 @@
-﻿using GiftShop.Persistence.Contexts;
+﻿using GiftShop.Domain.Models;
+using GiftShop.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace GiftShop.Persistence
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class, new()
     {
-        private readonly DbSet<T> objectSet;
         private readonly MyAppDbContext _context;
 
         public Repository(MyAppDbContext context)
         {
-            objectSet = context.Set<T>();
             _context = context;
         }
 
         public void Add(T entity)
         {
-            objectSet.Add(entity);
+            _context.Set<T>().Add(entity);
         }
 
-        public void AddRange(ICollection<T> entities)
+        public void AddRange(IEnumerable<T> entities)
         {
-            objectSet.AddRange(entities);
+            _context.Set<T>().AddRange(entities);
         }
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            _context.Set<T>().RemoveRange(entities);
+        }
+
+        public async Task<T> Find(Expression<Func<T, bool>> predicate)
+            => await _context.Set<T>().FirstOrDefaultAsync(predicate) ?? default!;
+
+        public async Task<T> Get(Guid id)
+            => await _context.Set<T>().FindAsync(id) ?? default!;
+
+        public async Task<IEnumerable<T>> GetAll()
+            => await _context.Set<T>().ToListAsync();
+
+        public async Task<IEnumerable<T>> GetPage(PageModel pageModel)
+            => await _context.Set<T>()
+            .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+            .Take(pageModel.PageSize)
+            .ToListAsync();
+
+        public async Task<IEnumerable<T>> GetWhere(Expression<Func<T, bool>> predicate)
+            => await _context.Set<T>().Where(predicate).ToListAsync();
 
         public void Update(T entity)
         {
-            objectSet.Update(entity);
+            _context.Set<T>().Update(entity);
         }
 
-        public void Remove(T entity)
+        public void UpdateRange(IEnumerable<T> entities)
         {
-            objectSet.Remove(entity);
-        }
-
-        public void RemoveRange(ICollection<T> entities)
-        {
-            objectSet.RemoveRange(entities);
-        }
-
-        public IQueryable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
-        {
-            if (includeProperties == null || !includeProperties.Any())
-            {
-                return objectSet.Where(predicate);
-            }
-
-            IQueryable<T> queryable = includeProperties.Aggregate(objectSet.AsQueryable(), (current, includeProperty) => current.Include(includeProperty));
-
-            return queryable.Where(predicate);
-        }
-
-        public T FindById(params object[] keyValues)
-        {
-            var result = objectSet.Find(keyValues);
-            return result ?? default!;
-        }
-
-        public IQueryable<T> GetAllAsQueryable(Func<IQueryable<T>, IIncludableQueryable<T, object>> include)
-        {
-            IQueryable<T> queryable = objectSet.AsQueryable<T>();
-            return include(queryable).AsNoTracking();
-        }
-
-        public IQueryable<T> GetAllAsQueryable()
-        {
-            return objectSet.AsQueryable<T>();
+            _context.UpdateRange(entities);
         }
     }
 }

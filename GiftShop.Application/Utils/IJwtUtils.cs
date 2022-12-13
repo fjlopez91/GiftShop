@@ -6,6 +6,6 @@ namespace GiftShop.Application.Utils
     {
         public string GetJwtToken(User user);
 
-        public string ValidateToken(string token);
+        public string? ValidateToken(string token);
     }
 }
