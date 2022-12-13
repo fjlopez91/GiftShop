@@ -1,4 +1,6 @@
-﻿using GiftShop.Application.Constants;
+﻿using GiftShop.API.Authorization;
+using GiftShop.Application;
+using GiftShop.Application.Constants;
 using GiftShop.Application.Dtos;
 using GiftShop.Application.Utils;
 using GiftShop.Domain.Entities.Identity;
@@ -22,6 +24,7 @@ namespace GiftShop.API.Controllers
         }
 
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] UserForAuthenticationDto model)
         {
             var user = _userManager.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).Where(x => x.Email == model.Email).FirstOrDefault();
@@ -34,16 +37,17 @@ namespace GiftShop.API.Controllers
         }
 
         [HttpPost("Registration")]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
             if (userForRegistration == null || !ModelState.IsValid)
                 return BadRequest();
 
             var userExists = await _userManager.FindByEmailAsync(userForRegistration.Email);
-            if (userExists != null) return BadRequest("User already exists");
+            if (userExists != null) return BadRequest(AppResource.UserAlreadyExist);
 
             if (userForRegistration.Password != userForRegistration.ConfirmPassword)
-                return BadRequest("Password and Confirm Password don´t match");
+                return BadRequest(AppResource.PasswordsNotMatch);
 
             var emailSplitted = userForRegistration.Email.Split('@');
 

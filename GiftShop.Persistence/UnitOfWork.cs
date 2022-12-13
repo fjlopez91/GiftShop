@@ -1,35 +1,34 @@
-﻿using GiftShop.Persistence.Contexts;
+﻿using GiftShop.Domain.Entities;
+using GiftShop.Domain.Entities.Identity;
+using GiftShop.Persistence.Contexts;
 
 namespace GiftShop.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private MyAppDbContext _context { get; set; }
-
-        private readonly Dictionary<string, object> repositories = new();
+        private readonly MyAppDbContext _context;
 
         public UnitOfWork(MyAppDbContext context)
         {
             _context = context;
         }
 
-        public void Commit()
-        {
-            _context.SaveChanges();
-            repositories.Clear();
-        }
+        #region repositories
 
-        public IRepository<T> GetRepository<T>() where T : class
-        {
-            string typeName = typeof(T).Name;
-            if (repositories.Keys.Contains(typeName))
-            {
-                return repositories[typeName] as IRepository<T> ?? default!;
-            }
-            IRepository<T> newRepository = new Repository<T>(_context);
+        private readonly IRepository<Product> productRepository = default!;        
+        public IRepository<Product> ProductRepository => productRepository ?? new Repository<Product>(_context);
 
-            repositories.Add(typeName, newRepository);
-            return newRepository;
-        }
+        private readonly IRepository<User> userRepository = default!;
+        public IRepository<User> UserRepository => userRepository ?? new Repository<User>(_context);
+
+        #endregion
+
+        public async Task<bool> Complete()
+            => await _context.SaveChangesAsync() > 0;
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }        
     }
 }

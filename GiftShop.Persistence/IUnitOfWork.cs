@@ -1,9 +1,13 @@
-﻿namespace GiftShop.Persistence
-{
-    public interface IUnitOfWork
-    {
-        IRepository<T> GetRepository<T>() where T : class;
+﻿using GiftShop.Domain.Entities;
+using GiftShop.Domain.Entities.Identity;
 
-        void Commit();
+namespace GiftShop.Persistence
+{
+    public interface IUnitOfWork : IDisposable
+    {
+        IRepository<Product> ProductRepository { get; }
+        IRepository<User> UserRepository { get; }
+
+        Task<bool> Complete();
     }
 }

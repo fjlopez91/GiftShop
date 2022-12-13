@@ -3,24 +3,17 @@ using System.Linq.Expressions;
 
 namespace GiftShop.Persistence
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : class, new()
     {
+        Task<T> Get(Guid id);
+        Task<T> Find(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> GetAll();
+        Task<IEnumerable<T>> GetWhere(Expression<Func<T, bool>> predicate);
         void Add(T entity);
-
-        void AddRange(ICollection<T> entities);
-
+        void AddRange(IEnumerable<T> entities);
         void Update(T entity);
-
-        void Remove(T entity);
-
-        void RemoveRange(ICollection<T> entities);
-
-        IQueryable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
-
-        T FindById(params object[] keyValues);
-
-        IQueryable<T> GetAllAsQueryable(Func<IQueryable<T>, IIncludableQueryable<T, object>> include);
-
-        IQueryable<T> GetAllAsQueryable();
+        void UpdateRange(IEnumerable<T> entities);
+        void Delete(T entity);
+        void DeleteRange(IEnumerable<T> entities);
     }
 }
