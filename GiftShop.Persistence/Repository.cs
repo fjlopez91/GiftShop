@@ -1,4 +1,5 @@
-﻿using GiftShop.Persistence.Contexts;
+﻿using GiftShop.Domain.Models;
+using GiftShop.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -41,6 +42,12 @@ namespace GiftShop.Persistence
 
         public async Task<IEnumerable<T>> GetAll()
             => await _context.Set<T>().ToListAsync();
+
+        public async Task<IEnumerable<T>> GetPage(PageModel pageModel)
+            => await _context.Set<T>()
+            .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+            .Take(pageModel.PageSize)
+            .ToListAsync();
 
         public async Task<IEnumerable<T>> GetWhere(Expression<Func<T, bool>> predicate)
             => await _context.Set<T>().Where(predicate).ToListAsync();

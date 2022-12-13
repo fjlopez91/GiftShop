@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GiftShop.API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
