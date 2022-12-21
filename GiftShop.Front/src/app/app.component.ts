@@ -1,26 +1,31 @@
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { NavigationEnd, Router } from '@angular/router';
+import { IconSetService } from '@coreui/icons-angular';
+import { iconSubset } from './icons/icon-subset';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'body',
+  template: '<router-outlet></router-outlet>',
 })
 export class AppComponent {
-  public forecasts?: WeatherForecast[];
+  title = 'CoreUI Free Angular Admin Template';
 
-  constructor(http: HttpClient) {
-    http.get<WeatherForecast[]>('/weatherforecast').subscribe(result => {
-      this.forecasts = result;
-    }, error => console.error(error));
+  constructor(
+    private router: Router,
+    private titleService: Title,
+    private iconSetService: IconSetService
+  ) {
+    titleService.setTitle(this.title);
+    // iconSet singleton
+    iconSetService.icons = { ...iconSubset };
   }
 
-  title = 'GiftShop.Front';
-}
-
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
+  ngOnInit(): void {
+    this.router.events.subscribe((evt) => {
+      if (!(evt instanceof NavigationEnd)) {
+        return;
+      }
+    });
+  }
 }

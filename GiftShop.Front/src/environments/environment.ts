@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  name: 'dev',
+  production: false,
+  apiUrl: 'https://localhost:7274/api',
+  baseApiUrl: 'https://localhost:7274'
 };
 
 /*
